@@ -15,6 +15,9 @@ In addition to the docker images, this [source tarball](https://github.com/round
 #### get initial certificate, make sure DNS works for your domain
 `docker run -it --rm -p 443:443 --name certbot -v /etc/letsencrypt:/etc/letsencrypt -v /var/log/letsencrypt:/var/log/letsencrypt certbot/certbot certonly --standalone -d DOMAIN.COM --email EMAIL@ADDRESS --agree-tos`
 
+#### generate diffie-hellman for nginx
+`openssl dhparam -out /etc/letsencrypt/dhparam.pem 2048`
+
 #### start email-stack cluster, takes an extra minute or two to create and populate volumes
 - `cp .env.tmpl .env`    # make adjustments to .env to match your desired environment
 - `./email-stack-ctl.sh createvol`
