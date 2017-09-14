@@ -1,0 +1,3 @@
+.env
+mailserver/config/opendkim/
+webmail/config.inc.php

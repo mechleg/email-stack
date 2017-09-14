@@ -1,0 +1,16 @@
+[Unit]
+Description=email-stack
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+
+EnvironmentFile=/opt/email-stack/.env
+ExecStartPre=-/usr/bin/docker-compose -f /opt/email-stack/docker-compose.yml down
+ExecStartPre=-/opt/email-stack/email-stack-ctl.sh createvol
+ExecStart=/opt/email-stack/email-stack-ctl.sh start
+ExecStop=/opt/email-stack/email-stack-ctl.sh stop
+
+[Install]
+WantedBy=multi-user.target

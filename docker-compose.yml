@@ -1,0 +1,96 @@
+version: '2'
+
+services:
+  mail:
+    build: mailserver
+#    image: tvial/docker-mailserver:latest
+    image: mechleg/email/mailserver
+    hostname: mail
+    domainname: ${DOMAIN}
+    container_name: mailserver
+#    links:
+#    - elk
+    ports:
+#    - "25:25"
+#    - "143:143"
+    - "587:587"
+    - "993:993"
+    volumes:
+    - maildata:/var/mail
+    - mailstate:/var/mail-state
+    - ./mailserver/config/:/tmp/docker-mailserver/
+    - /etc/letsencrypt:/etc/letsencrypt:ro
+    - /var/log/letsencrypt:/var/log/letsencrypt
+    environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
+    - ENABLE_FAIL2BAN=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
+    - SSL_TYPE=letsencrypt
+#    - ENABLE_ELK_FORWARDER=1
+    - SA_KILL=9999
+    cap_add:
+    - NET_ADMIN
+#    networks:
+#    - int
+#    - ext
+    restart: always
+  fpm:
+    build: 
+      context: ./php7fpm
+      args:
+      - TIMEZONE
+    image: mechleg/email/php7fpm
+    container_name: php7fpm
+    volumes:
+    - webmaildata:/var/lib/roundcube
+    restart: always
+  webmail:
+    build: 
+      context: ./webmail
+      args:
+      - SERVERNAME
+      - DOMAIN
+    image: mechleg/email/roundcube
+    hostname: webmail
+    domainname: ${DOMAIN}
+    container_name: webmail
+    links:
+    - fpm
+    - mail
+    ports:
+    - "443:443"
+    volumes:
+    - webmaildata:/var/lib/roundcube
+    - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: always
+#  elk:
+#    build: elk
+#    image: gr/elk2
+#    hostname: elk
+#    container_name: elk
+#    ports:
+#    - "5601:5601"
+#    - "9200:9200"
+#    - "5044:5044"
+#    - "5000:5000"
+#    - "9300:9300"
+#    networks: 
+#    - int
+#    restart: always
+
+volumes:
+  maildata:
+    driver: local
+  mailstate:
+    driver: local
+  webmaildata:
+    driver: local
+
+#networks:
+#  int:
+#    driver: bridge
+#    internal: true
+#  ext:
+#    driver: bridge
