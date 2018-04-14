@@ -34,7 +34,7 @@ build_roundcube_volume() {
   
   if [ ! -d "${MOUNT}/src" ]; then
     echo "webmail source not found in ${VOLUME}, creating now"
-    sed -e "s/\${SERVERNAME}/${SERVERNAME}.${DOMAIN}/g" -e "s/\${DOMAIN}/${DOMAIN}/g" -e "s|\${SUPPORT}|${SUPPORT}|g" -e "s/\(.*des_key.\+=\).*/\1 \'${KEY_OUT}\';/g" ${APPDIR}/webmail/config.inc.php.tmpl > ${APPDIR}/webmail/config.inc.php
+    sed -e "s|\${SUPPORT}|${SUPPORT}|g" -e "s/\(.*des_key.\+=\).*/\1 \'${KEY_OUT}\';/g" ${APPDIR}/webmail/config.inc.php.tmpl > ${APPDIR}/webmail/config.inc.php
     # create a shim container to do some copy operations into the volume
     DOCKER=$(docker run -d -v ${VOLUME}:/var/lib/roundcube ${BASE})
     # copy roundcube source to volume
@@ -54,6 +54,19 @@ build_roundcube_volume() {
   fi
 }
 
+SYSTEMD=$(systemctl is-active email-stack.service)
+if [ "$SYSTEMD" == 'unknown' ]; then
+  CMD="docker-compose -f ${APPDIR}/docker-compose.yml"
+  START="$CMD up"
+  STOP="$CMD down"
+  RESTART="$CMD restart"
+else
+  CMD="systemctl %s email-stack.service"
+  START=$(printf "$CMD" start)
+  STOP=$(printf "$CMD" stop)
+  RESTART=$(printf "$CMD" restart)
+fi
+
 case $1 in
   createvol)
     if [ $# -eq 2 ]; then
@@ -65,15 +78,18 @@ case $1 in
   delete)
     docker-compose -f ${APPDIR}/docker-compose.yml down -v
     ;;
+  restart)
+    $RESTART
+    ;;
   start)
-    docker-compose -f ${APPDIR}/docker-compose.yml up
+    $START
     ;;
   startd)
     # start in daemon mode
     docker-compose -f ${APPDIR}/docker-compose.yml up -d
     ;;
   stop)
-    docker-compose -f ${APPDIR}/docker-compose.yml down
+    $STOP
     ;;
   *)
     exit 1
