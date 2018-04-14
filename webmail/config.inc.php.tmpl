@@ -5,22 +5,22 @@ $config = array();
 // hosts
 $config['db_dsnw'] = 'sqlite:////var/lib/roundcube/sqlite.db?mode=0640';
 $config['default_host'] = array(
-  'ssl://${SERVERNAME}' => 'Webmail for ${DOMAIN}',
+  'ssl://mail.%d' => 'Webmail for %d',
 );
 $config['username_domain'] = array(
-  '${SERVERNAME}' => '${DOMAIN}',
+  '%h' => '%d',
 );
 $config['default_port'] = 993;
 $config['force_https'] = true;
-$config['product_name'] = 'MechLeg Webmail';
+$config['product_name'] = 'Graceful Restart Webmail';
 
 // crypto
 $config['cipher_method'] = 'AES-256-CBC';
 $config['des_key'] = 'C889C7403A1F2FBA325E16ECC09A2B0675C9D4053A37A9F8F81F96131787DF58';
 
 // SMTP
-$config['smtp_server'] = 'tls://%n';
-$config['smtp_port'] = 587;
+$config['smtp_server'] = 'ssl://%h';
+$config['smtp_port'] = 465;
 $config['smtp_user'] = '%u';
 $config['smtp_pass'] = '%p';
 
@@ -29,6 +29,7 @@ $config['identities_level'] = 1;
 $config['support_url'] = '${SUPPORT}';
 $config['standard_windows'] = true;
 $config['login_autocomplete'] = 1;
+$config['login_rate_limit'] = 4;
 $config['mime_types'] = '/var/lib/roundcube/mime.types';
 
 ?>
