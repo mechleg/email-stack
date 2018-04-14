@@ -5,7 +5,7 @@
 - [php7fpm](https://docs.docker.com/samples/library/php)
 - [webmail](https://docs.docker.com/samples/library/nginx)
 
-In addition to the docker images, this [source tarball](https://github.com/roundcube/roundcubemail/releases/download/1.3.1}/roundcubemail-1.3.1-complete.tar.gz) is also used
+In addition to the docker images, this [source tarball](https://github.com/roundcube/roundcubemail/releases/download/1.3.6/roundcubemail-1.3.6-complete.tar.gz) is also used
 
 
 ## Quick Usage (links above have more extensive documentation):
@@ -13,7 +13,10 @@ In addition to the docker images, this [source tarball](https://github.com/round
 `docker pull certbot/certbot`
 
 #### get initial certificate, make sure DNS works for your domain
-`docker run -it --rm -p 443:443 --name certbot -v /etc/letsencrypt:/etc/letsencrypt -v /var/log/letsencrypt:/var/log/letsencrypt certbot/certbot certonly --standalone -d DOMAIN.COM --email EMAIL@ADDRESS --agree-tos`
+`docker run -it --rm -p 80:80 -v /etc/letsencrypt:/etc/letsencrypt -v /var/log/letsencrypt:/var/log/letsencrypt certbot/certbot certonly --standalone --preferred-challenges http -d DOMAIN.COM --email EMAIL@ADDRESS --agree-tos`
+
+#### renew certificate
+`docker run -it --rm -p 80:80 -v /etc/letsencrypt:/etc/letsencrypt -v /var/log/letsencrypt:/var/log/letsencrypt certbot/certbot renew --preferred-challenges http`
 
 #### generate diffie-hellman for nginx
 `openssl dhparam -out /etc/letsencrypt/dhparam.pem 2048`
